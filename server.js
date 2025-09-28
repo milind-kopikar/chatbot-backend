@@ -5,13 +5,13 @@ const chatRoutes = require('./routes/chat');
 const config = require('./config/config');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = process.env.PORT || 3000;  // Railway prefers 3000
+const HOST = '0.0.0.0';  // Always bind to all interfaces
 
-// Log port info for Railway debugging
+// Log port info for Railway debugging  
 console.log('Railway PORT env:', process.env.PORT);
-console.log('Railway HOST env:', process.env.HOST);
 console.log('Will listen on:', HOST + ':' + PORT);
+console.log('All env vars:', Object.keys(process.env).filter(key => key.includes('PORT') || key.includes('HOST')));
 
 // Middleware - Allow all origins for now
 app.use(cors());
@@ -44,9 +44,26 @@ app.use((error, req, res, next) => {
     });
 });
 
-app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
     console.log(`Server running on ${HOST}:${PORT}`);
     console.log(`Current LLM provider: ${config.currentProvider}`);
     console.log('Server ready to accept connections');
     console.log('Environment:', process.env.NODE_ENV);
+});
+
+// Handle Railway shutdowns gracefully
+process.on('SIGTERM', () => {
+    console.log('Received SIGTERM, shutting down gracefully');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('Received SIGINT, shutting down gracefully');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
 });
