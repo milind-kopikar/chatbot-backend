@@ -15,6 +15,16 @@ console.log('Will listen on port:', PORT);
 app.use(cors());
 app.use(express.json());
 
+// Root route for Railway health check
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Chatbot Backend API', 
+        status: 'running',
+        timestamp: new Date().toISOString(),
+        provider: config.currentProvider 
+    });
+});
+
 // Routes
 app.use('/api/chat', chatRoutes);
 
