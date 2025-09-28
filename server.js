@@ -7,17 +7,12 @@ const config = require('./config/config');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors({
-    origin: [
-        'https://milind-kopikar.github.io',
-        'http://localhost:3000',
-        'http://localhost:3001'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Log port info for Railway debugging
+console.log('Railway PORT env:', process.env.PORT);
+console.log('Will listen on port:', PORT);
+
+// Middleware - Allow all origins for now
+app.use(cors());
 app.use(express.json());
 
 // Routes
@@ -37,7 +32,8 @@ app.use((error, req, res, next) => {
     });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Current LLM provider: ${config.currentProvider}`);
+    console.log('Server ready to accept connections');
 });
