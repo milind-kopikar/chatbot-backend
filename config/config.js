@@ -1,6 +1,9 @@
 require('dotenv').config();
 
 const config = {
+    // LLM toggle - enable/disable LLM-based responses
+    enableLLM: process.env.ENABLE_LLM !== 'false', // Default to true, set to 'false' to disable
+    
     // Current active provider - change this to switch between LLMs
     currentProvider: process.env.LLM_PROVIDER || 'openai',
     

@@ -48,6 +48,15 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
+        // Check if LLM is enabled
+        if (!config.enableLLM) {
+            return res.status(503).json({ 
+                error: 'LLM functionality is currently disabled',
+                message: 'Please enable LLM in configuration to use this feature',
+                enableLLM: false
+            });
+        }
+
         // Build conversation history
         const messages = [
             { role: 'system', content: options.systemPrompt || config.defaultSettings.systemPrompt },
@@ -82,6 +91,15 @@ router.post('/', async (req, res) => {
     }
 });
 
+// GET /api/chat/status - Get LLM status and configuration
+router.get('/status', (req, res) => {
+    res.json({
+        enableLLM: config.enableLLM,
+        currentProvider: config.currentProvider,
+        availableProviders: Object.keys(config.providers)
+    });
+});
+
 // GET /api/chat/providers - Get available providers
 router.get('/providers', (req, res) => {
     const availableProviders = Object.keys(config.providers).map(name => ({
@@ -90,7 +108,10 @@ router.get('/providers', (req, res) => {
         models: config.providers[name].models || []
     }));
     
-    res.json({ providers: availableProviders });
+    res.json({ 
+        providers: availableProviders,
+        enableLLM: config.enableLLM 
+    });
 });
 
 // POST /api/chat/provider - Switch provider

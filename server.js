@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const chatRoutes = require('./routes/chat');
+const dictionaryRoutes = require('./routes/dictionary');
 const config = require('./config/config');
 
 const app = express();
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/chat', chatRoutes);
+app.use('/api/dictionary', dictionaryRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

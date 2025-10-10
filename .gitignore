@@ -132,3 +132,6 @@ dist/
 
 # Test coverage
 coverage/
+
+# Test data
+test-data/
