@@ -4,6 +4,9 @@ const config = {
     // Current active provider - change this to switch between LLMs
     currentProvider: process.env.LLM_PROVIDER || 'openai',
     
+    // Toggle LLM functionality on/off
+    llmEnabled: process.env.ENABLE_LLM !== 'false', // Default to true unless explicitly disabled
+    
     // Provider configurations
     providers: {
         openai: {
