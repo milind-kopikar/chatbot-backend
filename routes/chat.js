@@ -48,6 +48,14 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
+        // Check if LLM is enabled
+        if (!config.llmEnabled) {
+            return res.status(503).json({ 
+                error: 'LLM functionality is currently disabled',
+                llm_enabled: false
+            });
+        }
+
         // Build conversation history
         const messages = [
             { role: 'system', content: options.systemPrompt || config.defaultSettings.systemPrompt },
