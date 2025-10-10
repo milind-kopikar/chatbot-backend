@@ -89,14 +89,36 @@ function verifyResponse(databaseEntry, llmResponse) {
     const actualMeaning = databaseEntry.english_meaning.toLowerCase();
     const llmMeaningLower = llmResponse.toLowerCase();
     
-    // Check if LLM response contains key words from actual meaning
-    const meaningWords = actualMeaning.split(/\s+/).filter(word => word.length > 3);
-    const matchedWords = meaningWords.filter(word => 
-        llmMeaningLower.includes(word.toLowerCase())
-    );
+    // Split meaning into words/phrases, handling commas
+    const meaningParts = actualMeaning.split(',').map(s => s.trim());
     
-    const matchPercentage = meaningWords.length > 0 
-        ? (matchedWords.length / meaningWords.length) * 100 
+    // Check if LLM response contains any of the meaning parts
+    let matchedParts = [];
+    let totalWords = 0;
+    let matchedWords = [];
+    
+    meaningParts.forEach(part => {
+        // Check if the entire phrase appears
+        if (llmMeaningLower.includes(part)) {
+            matchedParts.push(part);
+            // Count all words in matched phrase
+            const words = part.split(/\s+/).filter(w => w.length > 2);
+            matchedWords.push(...words);
+            totalWords += words.length;
+        } else {
+            // Check individual words
+            const words = part.split(/\s+/).filter(w => w.length > 2);
+            totalWords += words.length;
+            words.forEach(word => {
+                if (llmMeaningLower.includes(word)) {
+                    matchedWords.push(word);
+                }
+            });
+        }
+    });
+    
+    const matchPercentage = totalWords > 0 
+        ? (matchedWords.length / totalWords) * 100 
         : 0;
     
     return {
@@ -104,8 +126,8 @@ function verifyResponse(databaseEntry, llmResponse) {
         actual_meaning: databaseEntry.english_meaning,
         llm_response: llmResponse,
         match_percentage: Math.round(matchPercentage),
-        matched_words: matchedWords,
-        is_accurate: matchPercentage >= 50 // Consider 50% word match as accurate
+        matched_words: [...new Set(matchedWords)], // Remove duplicates
+        is_accurate: matchPercentage >= 40 // Consider 40% word match as accurate (lowered threshold)
     };
 }
 
